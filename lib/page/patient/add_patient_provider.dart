@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
-
+import 'dart:math';
 import 'package:healthcare_prediction/page/patient/patient_model.dart';
+import 'package:uuid/uuid.dart';
 
 class AddPatientProvider with ChangeNotifier {
   Gender? _gender;
@@ -65,7 +66,7 @@ class AddPatientProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> submit() {
+  Future<String?> submit(int length) {
     if (double.parse(ageController.text) == 0) {
       return Future.value('Your age invalid');
     }
@@ -88,6 +89,8 @@ class AddPatientProvider with ChangeNotifier {
       return Future.value('Please choose your residence type');
     }
     patientModel = PatientModel(
+        id: (length + 1).toString(),
+
         gender: gender!,
         age: double.parse(ageController.text),
         hypertension: hypertension,
@@ -101,4 +104,8 @@ class AddPatientProvider with ChangeNotifier {
     // FirebaseFirestore.instance.collection('patients').add(patient.toJson());
     return Future.value(null);
   }
+
+  // String generateId(){
+  //   return Random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  // }
 }

@@ -9,8 +9,10 @@ import 'package:healthcare_prediction/custom_textfield/shadow_textfield.dart';
 import 'package:healthcare_prediction/page/patient/patient_model.dart';
 
 class AddPatient extends StatefulWidget {
-  const AddPatient({Key? key, required this.socket}) : super(key: key);
+  const AddPatient({Key? key, required this.socket, required this.length})
+      : super(key: key);
   final Socket socket;
+  final int length;
 
   @override
   _AddPatientState createState() => _AddPatientState();
@@ -54,7 +56,7 @@ class _AddPatientState extends State<AddPatient> {
                         children: [
                           ElevatedButton(
                               onPressed: () {
-                                providerVal.submit().then((value) {
+                                providerVal.submit(widget.length).then((value) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Row(
@@ -87,7 +89,9 @@ class _AddPatientState extends State<AddPatient> {
                                   if (value == null) {
                                     Navigator.pop(
                                         context, providerVal.patientModel);
-                                    print(providerVal.patientModel.toString());
+                                    widget.socket.write(
+                                        'send:${providerVal.patientModel.toString()}');
+                                    // print(providerVal.patientModel.toString());
                                   }
                                 });
                               },

@@ -11,24 +11,24 @@ class PatientModel {
   double bmi;
   SmokingStatus smokingStatus;
   bool? strokePredict;
-  PatientModel({
-    this.id,
-    required this.gender,
-    required this.age,
-    required this.hypertension,
-    required this.heartDisease,
-    required this.everMarried,
-    required this.workType,
-    required this.residenceType,
-    required this.avgGlucoseLevel,
-    required this.bmi,
-    required this.smokingStatus,
-  });
+  PatientModel(
+      {this.id,
+      required this.gender,
+      required this.age,
+      required this.hypertension,
+      required this.heartDisease,
+      required this.everMarried,
+      required this.workType,
+      required this.residenceType,
+      required this.avgGlucoseLevel,
+      required this.bmi,
+      required this.smokingStatus,
+      this.strokePredict});
 
   // TODO: add convert
   @override
   String toString() {
-    return 'id: $id, gender: ${gender.value()}, age: $age, hypertension: ${hypertension ? 1 : 0}, heartDisease: ${heartDisease ? 1 : 0}, everMarried: ${everMarried ? 'Yes' : 'No'}, workType: ${workType.value()}, residenceType: ${residenceType.value()}, avgGlucoseLevel: $avgGlucoseLevel, bmi: $bmi, smokingStatus: ${smokingStatus.value()}';
+    return '$id, ${gender.toInt()}, $age, ${hypertension ? 1 : 0}, ${heartDisease ? 1 : 0}, ${everMarried ? '0' : '1'}, ${workType.toInt()}, ${residenceType.toInt()}, $avgGlucoseLevel, $bmi, ${smokingStatus.toInt()}';
   }
 
   Map<String, dynamic> toJson() {
@@ -63,6 +63,36 @@ class PatientModel {
           .firstWhere((e) => e.value() == json['smokingStatus']),
     );
   }
+
+  PatientModel copyWith({
+    String? id,
+    Gender? gender,
+    double? age,
+    bool? hypertension,
+    bool? heartDisease,
+    bool? everMarried,
+    WorkType? workType,
+    ResidenceType? residenceType,
+    double? avgGlucoseLevel,
+    double? bmi,
+    SmokingStatus? smokingStatus,
+    bool? strokePredict,
+  }) {
+    return PatientModel(
+      id: id ?? this.id,
+      gender: gender ?? this.gender,
+      age: age ?? this.age,
+      hypertension: hypertension ?? this.hypertension,
+      heartDisease: heartDisease ?? this.heartDisease,
+      everMarried: everMarried ?? this.everMarried,
+      workType: workType ?? this.workType,
+      residenceType: residenceType ?? this.residenceType,
+      avgGlucoseLevel: avgGlucoseLevel ?? this.avgGlucoseLevel,
+      bmi: bmi ?? this.bmi,
+      smokingStatus: smokingStatus ?? this.smokingStatus,
+      strokePredict: strokePredict ?? this.strokePredict,
+    );
+  }
 }
 
 enum Gender { male, female }
@@ -74,6 +104,15 @@ extension GenderExt on Gender {
         return 'Male';
       case Gender.female:
         return 'Female';
+    }
+  }
+
+  String toInt() {
+    switch (this) {
+      case Gender.male:
+        return '1';
+      case Gender.female:
+        return '0';
     }
   }
 }
@@ -95,6 +134,21 @@ extension WorkTypeExt on WorkType {
         return 'Govt_job';
     }
   }
+
+  String toInt() {
+    switch (this) {
+      case WorkType.children:
+        return '2';
+      case WorkType.selfEmployed:
+        return '1';
+      case WorkType.private:
+        return '0';
+      case WorkType.neverWorked:
+        return '4';
+      case WorkType.govtJob:
+        return '3';
+    }
+  }
 }
 
 enum ResidenceType { urban, rural }
@@ -106,6 +160,15 @@ extension ResidencetypeExt on ResidenceType {
         return 'Urban';
       case ResidenceType.rural:
         return 'Rural';
+    }
+  }
+
+  String toInt() {
+    switch (this) {
+      case ResidenceType.urban:
+        return '0';
+      case ResidenceType.rural:
+        return '1';
     }
   }
 }
@@ -123,6 +186,19 @@ extension SmokingStatusExt on SmokingStatus {
         return 'formerly smoked';
       case SmokingStatus.unknown:
         return 'Unknown';
+    }
+  }
+
+  String toInt() {
+    switch (this) {
+      case SmokingStatus.smokes:
+        return '3';
+      case SmokingStatus.neverSmoked:
+        return '0';
+      case SmokingStatus.formerlySmoked:
+        return '2';
+      case SmokingStatus.unknown:
+        return '1';
     }
   }
 }

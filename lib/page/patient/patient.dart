@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
-import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:healthcare_prediction/page/patient/patient_model.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -24,6 +24,48 @@ class _PatientsPageState extends State<PatientsPage> {
     // fetchAll();
     int endTime = DateTime.now().millisecondsSinceEpoch;
     controller = CountdownTimerController(endTime: endTime, onEnd: onEnd);
+    widget.socket.listen(
+      (Uint8List data) {
+        final String serverResponse = String.fromCharCodes(data);
+        // if (serverResponse == pushedData) {
+        //   pushedData = '';
+        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //     content: Text('Send success'),
+        //   ));
+        // }
+        if (serverResponse.contains('prediction:')) {
+          String id = serverResponse
+              .replaceAll('prediction:', '')
+              .split(';')[0]
+              .split(',')[0];
+          String predict = serverResponse
+              .replaceAll('prediction:', '')
+              .split(';')[0]
+              .split(',')[1];
+          var list = patients.value;
+
+          for (var item in list) {
+            if (item.id == id) {
+              // item.strokePredict = (predict == '0') ? 0 : ((predict == '1') ? 1) : null;
+              if (double.parse(predict) == 0) {
+                print('predict is not stroke');
+                item.strokePredict = false;
+              } else if (double.parse(predict) == 1) {
+                print('predict is stroke');
+                item.strokePredict = true;
+              } else {
+                print('didnt receive');
+                item.strokePredict = null;
+              }
+            }
+          }
+          for (var item in list) {
+            print(item.strokePredict);
+          }
+          patients.add(list);
+        }
+      },
+    );
   }
 
   void onEnd() {
@@ -60,6 +102,7 @@ class _PatientsPageState extends State<PatientsPage> {
               MaterialPageRoute(
                   builder: (context) => AddPatient(
                         socket: widget.socket,
+                        length: patients.value.length,
                       )),
             )
                 .then((value) {
@@ -301,5 +344,28 @@ class VDivider extends StatelessWidget {
         horizontal: 8.0,
       ),
     );
+  }
+}
+
+extension AppListExtension<T> on List<T> {
+  List<T> replaceItem(T item, bool Function(T item) sorter) {
+    int findIndex = indexWhere(sorter);
+    if (findIndex != -1) {
+      this[findIndex] = item;
+    }
+    return List.from(this);
+  }
+
+  // T getRandomIndex() {
+  //   int rndIndex = Random().nextInt(length);
+  //   return this[rndIndex];
+  // }
+
+  List<String> toListString(String Function(T item) toString) {
+    List<String> _returnString = [];
+    forEach((element) {
+      _returnString.add(toString(element));
+    });
+    return _returnString;
   }
 }
